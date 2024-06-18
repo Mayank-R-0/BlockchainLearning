@@ -26,6 +26,12 @@ contract ZombieFeeding is ZombieFactory {
 
     KittyInterface kittyContract;                // connecting to crypto kitties contract
 
+    // modifier function to check if the caller is zombie owner
+    modifier ownerOf(uint _zombieId){
+        require(msg.sender == zombieToOwner[_zombieId]);
+        _;
+    }
+
     // Setting crypto kitties contract address.. function is executed only by the owner who deployed the contract
     function setKittyContractAddress(address _address) external onlyOwner{
         kittyContract = KittyInterface(_address);
@@ -42,8 +48,7 @@ contract ZombieFeeding is ZombieFactory {
     }
 
     // function responsible to feed the zombies a kitty and make fused zombie 
-    function feedAndMultiply(uint _zombieId, uint _targetDna, string memory _species) internal {
-        require(msg.sender == zombieToOwner[_zombieId]);                  // check only the owner can feed the zombie
+    function feedAndMultiply(uint _zombieId, uint _targetDna, string memory _species) internal ownerOf(_zombieId) { // check only the owner can feed the zombie 
         Zombie storage myZombie = zombies[_zombieId];                     // storing the zombie reference to update its properties
         require(_isReady(myZombie));                                      // Check to see that zombie is ready for feeding
         _targetDna = _targetDna % dnaModulus;                             // limiting the kitty dna to be of 16 characters

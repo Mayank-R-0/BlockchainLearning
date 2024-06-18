@@ -7,21 +7,39 @@ import "./zombiefeeding.sol";
 // Self made contract named zombiehelper for helping function
 contract ZombieHelper is ZombieFeeding {
 
+  // level up fee to pass to the contract
+  uint levelUpFee = 0.001 ether;
+
   // modifier method to check if zombie level is above that certain level
   modifier aboveLevel(uint _level, uint _zombieId){
     require(zombies[_zombieId].level >= _level);
     _;
   }
 
+  // function to withdraw ether from the contract address to owner address
+  function withdraw() external onlyOwner {
+    address payable _owner = address(uint160(owner()));
+    _owner.transfer(address(this).balance);
+  }
+
+  // function sets the levelup fee according to set by the owner 
+  function setLevelUpFee(uint _fee) external onlyOwner{
+    levelUpFee = _fee;
+  }
+
+  // A payable method that a user can pay to the contract to level up
+  function levelUp(uint _zombieId) external payable{
+    require(msg.value == levelUpFee);           // check recieved amount is equals to level up fee
+    zombies[_zombieId].level++;
+  }
+
   // Giving user a chance to modify the name of thier zombie if its level is above 2
-  function changeName(uint _zombieId, string calldata _newName) external aboveLevel(2, _zombieId) {
-    require(msg.sender == zombieToOwner[_zombieId]);
+  function changeName(uint _zombieId, string calldata _newName) external aboveLevel(2, _zombieId) ownerOf(_zombieId) {
     zombies[_zombieId].name = _newName;
   }
 
   // Giving user a chance to modify the dna of thier zombie if its level is above 20
-  function changeDna(uint _zombieId, uint _newDna) external aboveLevel(20, _zombieId) {
-    require(msg.sender == zombieToOwner[_zombieId]);
+  function changeDna(uint _zombieId, uint _newDna) external aboveLevel(20, _zombieId) ownerOf(_zombieId) {
     zombies[_zombieId].dna = _newDna;
   }
 

@@ -21,6 +21,8 @@ contract ZombieFactory is Ownable{
         uint dna;
         uint32 level;
         uint32 readyTime;
+        uint16 winCount;
+        uint16 lossCount;
     }
 
     // Zombie array to store all zombies created
@@ -32,7 +34,7 @@ contract ZombieFactory is Ownable{
 
     // Function will created a new zombie based on name and dna
     function _createZombie(string memory _name, uint _dna) internal {
-        uint id = zombies.push(Zombie(_name, _dna, 1, uint32(now + cooldownTime))) - 1;                  // Adding newly created zombie to the list of zombies 
+        uint id = zombies.push(Zombie(_name, _dna, 1, uint32(now + cooldownTime), 0, 0)) - 1;                  // Adding newly created zombie to the list of zombies 
         // msg.sender contains blockchain address that calls this contract method
         zombieToOwner[id] = msg.sender;                                   // Assigning zombie to particular blockchain address that has called this function
         ownerZombieCount[msg.sender]++;                                   // Incrementing count of zombies with this address
