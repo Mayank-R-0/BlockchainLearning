@@ -3,17 +3,22 @@ pragma solidity >=0.5.0 <0.6.0;
 
 // Importing ownable.sol to setup ownership of contract
 import "./ownable.sol";
+import "./safemath.sol";
 
 // Self made contract named zombie factory
 contract ZombieFactory is Ownable{
+
+    using SafeMath for uint256;
+    using SafeMath32 for uint32;
+    using SafeMath16 for uint16;
+
+    // Event Declaration
+    event NewZombie(uint zombieId, string name, uint dna);      // Event dispatcher to inform the UI about the contract update
 
     // Variable Declaration
     uint dnaDigits = 16;              // defining the number of digits a dna should be of
     uint dnaModulus = 10**dnaDigits;  // storing dna digits
     uint cooldownTime = 1 days;
-
-    // Event Declaration
-    event NewZombie(uint zombieId, string name, uint dna);      // Event dispatcher to inform the UI about the contract update
 
     // Structure Declaration    
     struct Zombie {  // Storing zombies data
@@ -37,7 +42,7 @@ contract ZombieFactory is Ownable{
         uint id = zombies.push(Zombie(_name, _dna, 1, uint32(now + cooldownTime), 0, 0)) - 1;                  // Adding newly created zombie to the list of zombies 
         // msg.sender contains blockchain address that calls this contract method
         zombieToOwner[id] = msg.sender;                                   // Assigning zombie to particular blockchain address that has called this function
-        ownerZombieCount[msg.sender]++;                                   // Incrementing count of zombies with this address
+        ownerZombieCount[msg.sender] = ownerZombieCount[msg.sender].add(1);                                   // Incrementing count of zombies with this address
         emit NewZombie(id, _name, _dna);                                  // Informing the outside world/UI about contract update
     }
 
